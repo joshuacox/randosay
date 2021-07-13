@@ -1,0 +1,76 @@
+#!/usr/bin/env zsh
+
+horizontal_rule () {
+  rulez=( '!' '@' '\#' '-' '>' '<' '.' '_' '^' '*' '%' )
+  selected_rule=${rulez[$RANDOM % ${#rulez[@]} ]}
+  if [[ -z $selected_rule ]]; then
+    printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' "_"
+  else
+    printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' "$selected_rule"
+  fi
+}
+
+randomCow_opt () {
+  expressions=("-b" "-d" "-g" "-p" "-s" "-t" "-w" "-y")
+  selectedexpression=${expressions[$RANDOM % ${#expressions[@]} ]}
+}
+
+randomPony_opt () {
+  expressions=( "ascii" "cowsay" "linux-vt" "round" "unicode")
+  selectedexpression=${expressions[$RANDOM % ${#expressions[@]} ]}
+}
+
+randomCow () {
+  randomCow_opt
+  integer zcow=3
+  RANDORcow=$[RANDOM % zcow + 1]
+  if [[ $RANDORcow == 1 ]]; then
+    fortune -a -s|cowsay $selectedexpression 2>/dev/null
+  elif [[ $RANDOR == 2 ]]; then
+    fortune -a -s|cowthink $selectedexpression 2>/dev/null
+  else
+    fortune -a -s|ponysay 2>/dev/null
+  fi
+}
+
+randomCow_full () {
+  fortune -a \
+  | fmt -80 -s \
+  | $(shuf -n 1 -e cowsay cowthink) -$(shuf -n 1 -e b d g p s t w y) -f $(shuf -n 1 -e $(cowsay -l \
+  | tail -n +2)) -n
+}
+
+randomPony () {
+  randomPony_opt
+  integer zpony=3
+  RANDORpony=$[RANDOM % zpony + 1]
+  if [[ $RANDORpony == 1 ]]; then
+    fortune -a -s|ponysay -b $selectedexpression 2>/dev/null
+  elif [[ $RANDOR == 2 ]]; then
+    fortune -a -s|ponythink -b $selectedexpression 2>/dev/null
+  else
+    fortune -a -s|ponysay 2>/dev/null
+  fi
+}
+
+rando () {
+  integer z=6
+  RANDOR=$[RANDOM % z + 1]
+  if [[ $RANDOR == 1 ]]; then
+    #fortune -a -s|lolcat|ponysay 2>/dev/null
+    randomPony
+  elif [[ $RANDOR == 2 ]]; then
+    randomCow
+  elif [[ $RANDOR == 3 ]]; then
+    randomCow_full
+  elif [[ $RANDOR == 4 ]]; then
+    fortune -c | cowthink -f $(find /usr/share/cows -type f | shuf -n 1)
+  elif [[ $RANDOR == 5 ]]; then
+    fortune -a -s|lolcat 2>/dev/null
+  else
+    fortune -a -s
+  fi
+}
+horizontal_rule
+rando
+horizontal_rule
