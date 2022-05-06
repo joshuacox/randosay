@@ -26,7 +26,7 @@ randomCow () {
   RANDORcow=$[RANDOM % zcow + 1]
   if [[ $RANDORcow == 1 ]]; then
     fortune -a -s|cowsay $selectedexpression 2>/dev/null
-  elif [[ $RANDOR == 2 ]]; then
+  elif [[ $RANDORcow == 2 ]]; then
     fortune -a -s|cowthink $selectedexpression 2>/dev/null
   else
     fortune -a -s|ponysay 2>/dev/null
@@ -46,7 +46,7 @@ randomPony () {
   RANDORpony=$[RANDOM % zpony + 1]
   if [[ $RANDORpony == 1 ]]; then
     fortune -a -s|ponysay -b $selectedexpression 2>/dev/null
-  elif [[ $RANDOR == 2 ]]; then
+  elif [[ $RANDORpony == 2 ]]; then
     fortune -a -s|ponythink -b $selectedexpression 2>/dev/null
   else
     fortune -a -s|ponysay 2>/dev/null
@@ -71,6 +71,7 @@ rando () {
     fortune -a -s
   fi
 }
+
 horizontal_rule
 rando
 horizontal_rule
