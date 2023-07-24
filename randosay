@@ -4,8 +4,22 @@ cowsay_exists=0
 ponysay_exists=0
 lolcat_exists=0
 
+if [[ $1 == '--debug' ]]; then
+: ${DEBUG:=1}
+else
+: ${DEBUG:=0}
+fi
+
 horizontal_rule () {
   rulez=( '!' '@' '\#' '-' '>' '<' '.' '_' '^' '*' '%' )
+  rulez+=( '_' '-' '~' '=' ':' '"' 'w' 'W' 'v' '^' 'V' 'm' 'M' 'n' 'N' 'U' )
+  rulez+=( '!' '@' '\#' '$' '-' '>' '<' '.' '_' '^' '*' '%' '.' ',' '?' '+' )
+  rulez+=( '!' '@' '\#' '$' '-' '>' '<' '.' '_' '^' '*' '%' )
+  rulez+=( '!' '@' '\#' '$' '%' '^' '&' '*' '(' ')' '[' ']' '{' '}' '|' )
+  rulez+=( '!' '@' '\#' '$' '-' '>' '<' '.' '_' '^' '*' '%' '.' ',' '?' '+' )
+  rulez+=( '1' '2' '3' '4' '5' '6' '7' '8' '9' '0' )
+  rulez+=( 'a' 'b' 'c' 'd' 'e' 'f' 'g' 'h' 'i' 'j' 'k' 'l' 'm' 'n' 'o' 'p' 'q' 'r' 's' 't' 'u' 'v' 'w' 'x' 'y' 'z' )
+  rulez+=( 'A' 'B' 'C' 'D' 'E' 'F' 'G' 'H' 'I' 'J' 'K' 'L' 'M' 'N' 'O' 'P' 'Q' 'R' 'S' 'T' 'U' 'V' 'W' 'X' 'Y' 'Z' )
   selected_rule=${rulez[$RANDOM % ${#rulez[@]} ]}
   if [[ -z $selected_rule ]]; then
     printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' "_"
@@ -18,9 +32,12 @@ randomCow_opt () {
   expressions=("-b" "-d" "-g" "-p" "-s" "-t" "-w" "-y")
   selectedexpression=${expressions[$RANDOM % ${#expressions[@]} ]}
 }
-
 randomPony_opt () {
   expressions=( "ascii" "cowsay" "linux-vt" "round" "unicode")
+  selectedexpression=${expressions[$RANDOM % ${#expressions[@]} ]}
+}
+randomPonyThink_opt () {
+  expressions=( "ascii" "cowsay" "unicode")
   selectedexpression=${expressions[$RANDOM % ${#expressions[@]} ]}
 }
 
@@ -29,11 +46,17 @@ randomCow () {
   integer zcow=3
   RANDORcow=$[RANDOM % zcow + 1]
   if [[ $RANDORcow == 1 ]]; then
-    fortune -a -s|cowsay $selectedexpression 2>/dev/null
+    if [[ $DEBUG ]]; then
+      echo "fortune -a |cowsay $selectedexpression"
+    fi
+    fortune -a |cowsay $selectedexpression 2>/dev/null
   elif [[ $RANDORcow == 2 ]]; then
-    fortune -a -s|cowthink $selectedexpression 2>/dev/null
+    if [[ $DEBUG ]]; then
+      echo "fortune -a |cowthink $selectedexpression"
+    fi
+    fortune -a |cowthink $selectedexpression 2>/dev/null
   else
-    fortune -a -s|ponysay 2>/dev/null
+    fortune -a |ponysay 2>/dev/null
   fi
 }
 
@@ -45,71 +68,90 @@ randomCow_full () {
 }
 
 randomPony () {
-  randomPony_opt
   integer zpony=3
   RANDORpony=$[RANDOM % zpony + 1]
   if [[ $RANDORpony == 1 ]]; then
-    fortune -a -s|ponysay -b $selectedexpression 2>/dev/null
+    randomPony_opt
+    if [[ -z $selectedexpression ]]; then
+      fortune -a -s|ponysay
+    else
+      fortune -a -s|ponysay -b $selectedexpression 2>/dev/null
+    fi
+    if [[ $DEBUG ]]; then
+      echo -n "randomPony1 - "
+      echo "fortune -a|ponysay -b $selectedexpression"
+    fi
   elif [[ $RANDORpony == 2 ]]; then
-    fortune -a -s|ponythink -b $selectedexpression 2>/dev/null
+    randomPonyThink_opt
+    if [[ -z $selectedexpression ]]; then
+      fortune -a -s|ponythink 2>/dev/null
+      if [[ $DEBUG ]]; then
+        echo "fortune -a -s|ponythink"
+      fi
+    else
+      fortune -a -s|ponythink -b $selectedexpression 2>/dev/null
+      if [[ $DEBUG ]]; then
+        echo "fortune -a -s|ponythink -b $selectedexpression"
+      fi
+    fi
   else
     fortune -a -s|ponysay 2>/dev/null
+    if [[ $DEBUG ]]; then
+      echo "fortune -a -s|ponysay"
+    fi
   fi
 }
 
 fortune_all () {
-  fortune -a -s
+  fortune -a
 }
 
 fortune_cowthink () {
-  fortune -c | cowthink -f $(find /usr/share/cows -type f | shuf -n 1)
+  # having issues with pm files
+  #fortune -a | cowthink -f $(find /usr/share/cows -type f | shuf -n 1)
+  fortune -a | cowthink -f $(find /usr/share/cows -type f -iname '*.cow' | shuf -n 1)
 }
 
 fortune_lolcat () {
-  fortune -a -s|lolcat 2>/dev/null
-}
-
-
-rando () {
-  integer z=6
-  RANDOR=$[RANDOM % z + 1]
-  if [[ $RANDOR == 1 ]]; then
-    #fortune -a -s|lolcat|ponysay 2>/dev/null
-    randomPony
-  elif [[ $RANDOR == 2 ]]; then
-    randomCow
-  elif [[ $RANDOR == 3 ]]; then
-    randomCow_full
-  elif [[ $RANDOR == 4 ]]; then
-    fortune -c | cowthink -f $(find /usr/share/cows -type f | shuf -n 1)
-  elif [[ $RANDOR == 5 ]]; then
-    fortune -a -s|lolcat 2>/dev/null
-  else
-    fortune -a -s
-  fi
+  fortune -a |lolcat 2>/dev/null
 }
 
 test_speakers () {
   if command -v fortune > /dev/null; then
-    echo fortune exists
+    if [[ $DEBUG > 10 ]]; then
+      echo fortune exists
+    fi
     fortune_exists=1
   fi
   if command -v cowsay > /dev/null; then
-    echo cowsay exists
+    if [[ $DEBUG > 10 ]]; then
+      echo cowsay exists
+    fi
     cowsay_exists=1
   fi
   if command -v ponysay > /dev/null; then
-    echo ponysay exists
+    if [[ $DEBUG > 10 ]]; then
+      echo ponysay exists
+    fi
     ponysay_exists=1
   fi
   if command -v lolcat > /dev/null; then
-    echo  lolcat exists
+    if [[ $DEBUG > 10 ]]; then
+      echo  lolcat exists
+    fi
     lolcat_exists=1
   fi
 }
 
-randoNG () {
+rando () {
   test_speakers
+  if [[ $DEBUG > 10 ]]; then
+    echo test_speakers
+    echo ponysay_exists=$ponysay_exists
+    echo cowsay_exists=$cowsay_exists
+    echo lolcat_exists=$lolcat_exists
+    echo fortune_exists=$fortune_exists
+  fi
   if [[ $ponysay_exists ]]; then
     cmd_array+=("randomPony")
   fi
@@ -132,8 +174,21 @@ randoNG () {
     done
   }
   #print_all
-  export RUNNR=${cmd_array[ $RANDOM % ${#cmd_array[@]} ]}
-  $RUNNR
+  #export RUNNR=${cmd_array[ $RANDOM % ${#cmd_array[@]} ]}
+  export RUNNR=${cmd_array[ $RANDOM % ${#cmd_array[@]} + 1 ]}
+  #$RUNNR
+  if [[ -z $RUNNR ]]; then
+    fortune_all
+    if [[ $DEBUG ]]; then
+      echo EMPTY
+    fi
+  else
+    $RUNNR
+    #randomPony
+    if [[ $DEBUG ]]; then
+      echo $RUNNR
+    fi
+  fi
 }
 
 horizontal_rule
