@@ -46,12 +46,12 @@ randomCow () {
   integer zcow=3
   RANDORcow=$[RANDOM % zcow + 1]
   if [[ $RANDORcow == 1 ]]; then
-    if [[ $DEBUG ]]; then
+    if [[ $DEBUG > 0 ]]; then
       echo "fortune -a |cowsay $selectedexpression"
     fi
     fortune -a |cowsay $selectedexpression 2>/dev/null
   elif [[ $RANDORcow == 2 ]]; then
-    if [[ $DEBUG ]]; then
+    if [[ $DEBUG > 0 ]]; then
       echo "fortune -a |cowthink $selectedexpression"
     fi
     fortune -a |cowthink $selectedexpression 2>/dev/null
@@ -77,7 +77,7 @@ randomPony () {
     else
       fortune -a -s|ponysay -b $selectedexpression 2>/dev/null
     fi
-    if [[ $DEBUG ]]; then
+    if [[ $DEBUG > 0 ]]; then
       echo -n "randomPony1 - "
       echo "fortune -a|ponysay -b $selectedexpression"
     fi
@@ -85,18 +85,18 @@ randomPony () {
     randomPonyThink_opt
     if [[ -z $selectedexpression ]]; then
       fortune -a -s|ponythink 2>/dev/null
-      if [[ $DEBUG ]]; then
+      if [[ $DEBUG > 0 ]]; then
         echo "fortune -a -s|ponythink"
       fi
     else
       fortune -a -s|ponythink -b $selectedexpression 2>/dev/null
-      if [[ $DEBUG ]]; then
+      if [[ $DEBUG > 0 ]]; then
         echo "fortune -a -s|ponythink -b $selectedexpression"
       fi
     fi
   else
     fortune -a -s|ponysay 2>/dev/null
-    if [[ $DEBUG ]]; then
+    if [[ $DEBUG > 0 ]]; then
       echo "fortune -a -s|ponysay"
     fi
   fi
@@ -179,14 +179,15 @@ rando () {
   #$RUNNR
   if [[ -z $RUNNR ]]; then
     fortune_all
-    if [[ $DEBUG ]]; then
+    if [[ $DEBUG > 0 ]]; then
       echo EMPTY
     fi
   else
     $RUNNR
     #randomPony
-    if [[ $DEBUG ]]; then
+    if [[ $DEBUG > 0 ]]; then
       echo $RUNNR
+      echo DEBUG=$DEBUG
     fi
   fi
 }
