@@ -1,4 +1,8 @@
 #!/usr/bin/env zsh
+fortune_exists=0
+cowsay_exists=0
+ponysay_exists=0
+lolcat_exists=0
 
 horizontal_rule () {
   rulez=( '!' '@' '\#' '-' '>' '<' '.' '_' '^' '*' '%' )
@@ -53,6 +57,19 @@ randomPony () {
   fi
 }
 
+fortune_all () {
+  fortune -a -s
+}
+
+fortune_cowthink () {
+  fortune -c | cowthink -f $(find /usr/share/cows -type f | shuf -n 1)
+}
+
+fortune_lolcat () {
+  fortune -a -s|lolcat 2>/dev/null
+}
+
+
 rando () {
   integer z=6
   RANDOR=$[RANDOM % z + 1]
@@ -70,6 +87,53 @@ rando () {
   else
     fortune -a -s
   fi
+}
+
+test_speakers () {
+  if command -v fortune > /dev/null; then
+    echo fortune exists
+    fortune_exists=1
+  fi
+  if command -v cowsay > /dev/null; then
+    echo cowsay exists
+    cowsay_exists=1
+  fi
+  if command -v ponysay > /dev/null; then
+    echo ponysay exists
+    ponysay_exists=1
+  fi
+  if command -v lolcat > /dev/null; then
+    echo  lolcat exists
+    lolcat_exists=1
+  fi
+}
+
+randoNG () {
+  test_speakers
+  if [[ $ponysay_exists ]]; then
+    cmd_array+=("randomPony")
+  fi
+  if [[ $cowsay_exists ]]; then
+    cmd_array+=("randomCow")
+  fi
+  if [[ $fortune_exists && $cowsay_exists ]]; then
+    cmd_array+=("fortune_cowthink")
+  fi
+  if [[ $fortune_exists && $lolcat_exists ]]; then
+    cmd_array+=("fortune_lolcat")
+  fi
+  if [[ $fortune_exists ]]; then
+    cmd_array+=("fortune_all")
+  fi
+  print_all () {
+    for value in "${cmd_array[@]}"
+    do
+      echo $value
+    done
+  }
+  #print_all
+  export RUNNR=${cmd_array[ $RANDOM % ${#cmd_array[@]} ]}
+  $RUNNR
 }
 
 horizontal_rule
