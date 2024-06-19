@@ -106,10 +106,20 @@ fortune_all () {
   fortune -a
 }
 
+determine_cow_path () {
+  . /etc/os-release
+  if [[ ${NAME} == 'NixOS' ]]; then
+    COW_PATH=$(dirname --zero $(dirname $(readlink $(which cowsay))))
+  else
+    COW_PATH=/usr/share/cows
+  fi 
+}
+
 fortune_cowthink () {
   # having issues with pm files
   #fortune -a | cowthink -f $(find /usr/share/cows -type f | shuf -n 1)
-  fortune -a | cowthink -f $(find /usr/share/cows -type f -iname '*.cow' | shuf -n 1)
+  determine_cow_path
+  fortune -a | cowthink -f $(find ${COW_PATH} -type f -iname '*.cow' | shuf -n 1)
 }
 
 fortune_lolcat () {
