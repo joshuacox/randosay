@@ -110,9 +110,15 @@ determine_cow_path () {
   . /etc/os-release
   if [[ ${NAME} == 'NixOS' ]]; then
     COW_PATH=$(dirname --zero $(dirname $(readlink $(which cowsay))))
+  elif [[ ${NAME} == 'Arch Linux' ]]; then
+    COW_PATH=/usr/share/cowsay/cows
   else
     COW_PATH=/usr/share/cows
   fi 
+  if [[ ! -f /usr/share/cowsay/cows/meow.cow ]]; then
+    echo "WARN: COW_PATH is wrong $COW_PATH"
+    sleep 2
+  fi
 }
 
 fortune_cowthink () {
