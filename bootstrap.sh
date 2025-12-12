@@ -2,7 +2,7 @@
 THIS_NAME=randosay
 THIS_GH=joshuacox
 THIS_BRANCH=main
-TMP_DIR=$(mktemp -d --suffix='${THIS_NAME}')
+TMP_DIR=$(mktemp -d --suffix="${THIS_NAME}")
 cleanup_func () {
   echo rm -Rf ${TMP}
 }
