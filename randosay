@@ -1,5 +1,6 @@
 #!/usr/bin/env zsh
 fortune_exists=0
+botsay_exists=0
 cowsay_exists=0
 ponysay_exists=0
 lolcat_exists=0
@@ -32,6 +33,12 @@ randomCow_opt () {
   expressions=("-b" "-d" "-g" "-p" "-s" "-t" "-w" "-y")
   selectedexpression=${expressions[$RANDOM % ${#expressions[@]} ]}
 }
+randomBot_opt () {
+    if [[ $DEBUG > 0 ]]; then
+      echo "no botsay opts yet"
+    fi
+  selectedexpression=' '
+}
 randomPony_opt () {
   expressions=( "ascii" "cowsay" "linux-vt" "round" "unicode")
   selectedexpression=${expressions[$RANDOM % ${#expressions[@]} ]}
@@ -39,6 +46,25 @@ randomPony_opt () {
 randomPonyThink_opt () {
   expressions=( "ascii" "cowsay" "unicode")
   selectedexpression=${expressions[$RANDOM % ${#expressions[@]} ]}
+}
+
+randomBot () {
+  randomBot_opt
+  integer zbot=2
+  RANDORbot=$[RANDOM % zbot + 1]
+  if [[ $RANDORbot == 1 ]]; then
+    if [[ $DEBUG > 0 ]]; then
+      echo "fortune -a |botsay"
+    fi
+    fortune -a |botsay $selectedexpression 2>/dev/null
+  elif [[ $RANDORbot == 2 ]]; then
+    if [[ $DEBUG > 0 ]]; then
+      echo "fortune -a |botsay -c $selectedexpression"
+    fi
+    fortune -a |botsay -c $selectedexpression 2>/dev/null
+  else
+    fortune -a |botsay 2>/dev/null
+  fi
 }
 
 randomCow () {
@@ -110,12 +136,12 @@ determine_cow_path () {
   . /etc/os-release
   if [[ ${NAME} == 'NixOS' ]]; then
     COW_PATH=$(dirname --zero $(dirname $(readlink $(which cowsay))))
-  elif [[ ${NAME} == 'Arch Linux' ]]; then
+  elif [[ ${NAME} == 'Arch Linux' || ${NAME} == 'Omarchy' ]]; then
     COW_PATH=/usr/share/cowsay/cows
   else
     COW_PATH=/usr/share/cows
   fi 
-  if [[ ! -f /usr/share/cowsay/cows/meow.cow ]]; then
+  if [[ ! -f ${COW_PATH}/meow.cow ]]; then
     echo "WARN: COW_PATH is wrong $COW_PATH"
     sleep 2
   fi
@@ -145,6 +171,12 @@ test_speakers () {
     fi
     cowsay_exists=1
   fi
+  if command -v botsay > /dev/null; then
+    if [[ $DEBUG > 10 ]]; then
+      echo botsay exists
+    fi
+    botsay_exists=1
+  fi
   if command -v ponysay > /dev/null; then
     if [[ $DEBUG > 10 ]]; then
       echo ponysay exists
@@ -165,6 +197,7 @@ rando () {
     echo test_speakers
     echo ponysay_exists=$ponysay_exists
     echo cowsay_exists=$cowsay_exists
+    echo botsay_exists=$botsay_exists
     echo lolcat_exists=$lolcat_exists
     echo fortune_exists=$fortune_exists
   fi
@@ -173,6 +206,9 @@ rando () {
   fi
   if [[ $cowsay_exists ]]; then
     cmd_array+=("randomCow")
+  fi
+  if [[ $botsay_exists ]]; then
+    cmd_array+=("randomBot")
   fi
   if [[ $fortune_exists && $cowsay_exists ]]; then
     cmd_array+=("fortune_cowthink")
