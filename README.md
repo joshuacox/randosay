@@ -5,3 +5,7 @@ This is a small utility to wrap fortunes with a horizontal rule, and then to ran
 ```
 curl -sL https://raw.githubusercontent.com/joshuacox/randosay/refs/heads/main/bootstrap.sh | bash
 ```
+
+## Documentation & Live Demo
+
+Visit the documentation and interactive terminal simulator at [joshuacox.github.io/randosay](https://joshuacox.github.io/randosay/).
